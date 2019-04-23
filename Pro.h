@@ -33,12 +33,66 @@ class CardPlayer{
 		void showHand();
 		void showItem();
 		int showScore();
+		void useItem(CardPlayer,int,int);
 };
 
 CardPlayer::CardPlayer(string text,bool bot){
 	name = text;
 	ai = bot;
 	hp = hpmax = 1000;
+}
+
+void CardPlayer::useItem(CardPlayer you,int bet,int command){
+	switch (command){
+		case 0 :{
+			
+			break;
+		}
+		case 1 :{
+			
+			break;
+		}
+		case 2 :{
+			
+			break;
+		}
+		case 3 :{
+			
+			break;
+		}
+		case 4 :{
+			
+			break;
+		}
+		case 5 :{
+			
+			break;
+		}
+		case 6 :{
+			
+			break;
+		}
+		case 7 :{
+			
+			break;
+		}
+		case 8 :{
+			
+			break;
+		}
+		case 9 :{
+			
+			break;
+		}
+		case 10 :{
+			
+			break;
+		}
+		case 11 :{
+			
+			break;
+		}
+	}
 }
 
 string CardPlayer::showName(){
@@ -121,40 +175,64 @@ void CardPlayer::clearHand(){
 
 void playTurn(CardPlayer &me,CardPlayer &you,bool deck[],bool item[],bool &pEnd,int &bet){
 	int command;
-	cout << me.showName() << " Turn\n" << " [1] to DRAW\n [2] to STAND\n >> ";
+	cout << me.showName() << " Turn\n" << " [1] to DRAW\n [2] to STAND\n [3] to USE ITEM\n >> ";
 	cin >> command;
 	switch (command) {
 		case 1 : {
 			me.drawCard(deck,item);
+			int score = me.showScore();
+			if (score > winScore){
+				pEnd = false;
+			}
 			break;
 		}
 		case 2 : {
-			cout << "End Turn.\n";
-			pEnd = true;
+			cout << "Stand!!.\n";
+			pEnd = false;
+			break;
+		}
+		case 3 : {
+			int get;
+			cout << "Select item >> ";
+			cin >> get;
+			me.useItem(you,bet,get);
+			pEnd = false;
 			break;
 		}
 	}
+	cout << "End Turn.\n";
 	cout << me.showName() << "'s Current Hand >> ";
 	me.showHand();
 }
 
 void botTurn(CardPlayer &me,CardPlayer &you,bool deck[],bool item[],bool &rEnd,int &bet){
 	int command;
-	cout << me.showName() << " Turn\n" << " [1] to DRAW\n [2] to STAND\n >> ";
+	cout << me.showName() << " Turn\n" << " [1] to DRAW\n [2] to STAND\n [3] to USE ITEM\n >> ";
 	cin >> command;
 	switch (command) {
 		case 1 : {
 			me.drawCard(deck,item);
-			cout << me.showName() << "'s Current Hand >> ";
-			me.showHand();
+			int score = me.showScore();
+			if (score > winScore){
+				rEnd = false;
+			}
 			break;
 		}
 		case 2 : {
-			cout << "End Turn.\n";
-			rEnd = true;
+			cout << "Stand!!.\n";
+			rEnd = false;
+			break;
+		}
+		case 3 : {
+			int get;
+			cout << "Select item >> ";
+			cin >> get;
+			me.useItem(you,bet,get);
+			rEnd = false;
 			break;
 		}
 	}
+	cout << "End Turn.\n";
 	cout << me.showName() << "'s Current Hand >> ";
 	me.showHand();
 }
@@ -165,9 +243,17 @@ void resetDeck(bool deck[]){
 	}
 }
 
+void hpBar(CardPlayer p){
+	string name = p.showName();
+	cout << name << setw(10 - name.length());
+	for (int i = 0;i < (p.showHP()/10);i++){
+		cout << "|";
+	}
+}
+
 void roundPlay(CardPlayer &p,CardPlayer &r,bool deck[],bool item[],int round,int &bet){
-	bool pEnd = false;
-	bool rEnd = false;
+	bool pEnd = true;
+	bool rEnd = true;
 	int result;
 	resetDeck(deck);
 	p.startGame(deck,item);
@@ -180,9 +266,9 @@ void roundPlay(CardPlayer &p,CardPlayer &r,bool deck[],bool item[],int round,int
 	cout << p.showName() << "'s Hand >> ";p.showHand();
 	cout << p.showName() << "'s Item >> \n";p.showItem();
 	do{
-		if (!pEnd) playTurn(p,r,deck,item,pEnd,bet);
-		if (!rEnd) botTurn(r,p,deck,item,rEnd,bet);
-	}while(pEnd && rEnd);
+		if (pEnd) playTurn(p,r,deck,item,pEnd,bet);
+		if (rEnd) botTurn(r,p,deck,item,rEnd,bet);
+	}while(pEnd || rEnd);
 	int pScore = p.showScore();
 	int rScore = r.showScore();
 	if ((pScore > winScore && rScore > winScore) || pScore == rScore){
@@ -214,7 +300,7 @@ bool gamePlay(void){
 	cout << "Enter your name >> ";
 	cin >> s;
 	CardPlayer p(s,false);
-	CardPlayer r("Azael",true);
+	CardPlayer r("Azael",false);
 	int i = 1,php,rhp,bet = 50;
 	do{
 		roundPlay(p,r,cardDeck,cardItem,i,bet);
@@ -222,8 +308,8 @@ bool gamePlay(void){
 		rhp = r.showHP();
 		bet+=50;
 		i++;
-	}while(php != 0 && rhp != 0);
-	if (php == 0) return false;
-	else if (rhp == 0) return true;
+	}while(php > 0 && rhp > 0);
+	if (php <= 0) return false;
+	else if (rhp <= 0) return true;
 }
 
